@@ -139,7 +139,7 @@ ${conversationText}`;
 
   try {
     const response = await ai.models.generateContent({
-      model: MODEL_NAME,
+      model: gemini-3-pro-preview,
       contents: prompt
     });
     return response.text || "Không thể tạo báo cáo lúc này.";
