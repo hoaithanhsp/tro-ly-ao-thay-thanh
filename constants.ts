@@ -1,11 +1,12 @@
 import { SupportMode } from "./types";
 
 // ✅ API ROTATION - Thêm phần này
+// ✅ API ROTATION - Thêm phần này
 const API_KEYS = [
-  process.env.GEMINI_API_KEY_1,
-  process.env.GEMINI_API_KEY_2,
-  process.env.GEMINI_API_KEY_3,
-  process.env.GEMINI_API_KEY_4,
+  import.meta.env.VITE_GEMINI_API_KEY_1,
+  import.meta.env.VITE_GEMINI_API_KEY_2,
+  import.meta.env.VITE_GEMINI_API_KEY_3,
+  import.meta.env.VITE_GEMINI_API_KEY_4,
 ].filter(key => key); // Lọc bỏ undefined
 
 // Hàm chọn API key ngẫu nhiên
@@ -20,7 +21,15 @@ export const getRandomApiKey = () => {
 // Export để dùng trong file khác
 export const CURRENT_API_KEY = getRandomApiKey();
 
-export const MODEL_NAME = "gemini-2.5-flash"; // Using flash for fast chat responses
+// ✅ Cấu hình Models
+export const MODEL_LIST = [
+  { id: 'gemini-3-flash-preview', name: 'Gemini 3.0 Flash Preview (Default)' },
+  { id: 'gemini-3-pro-preview', name: 'Gemini 3.0 Pro Preview' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+];
+
+export const DEFAULT_MODEL = 'gemini-3-flash-preview';
+
 
 export const TEACHER_NAME = "Trần Hoài Thanh";
 export const TEACHER_SCHOOL = "THPT Khúc Thừa Dụ";
@@ -32,24 +41,24 @@ Thầy ở đây để đồng hành cùng em, không chỉ là những con số
 Hôm nay em muốn thầy giúp về **bài tập Toán** hay là muốn **tâm sự chuyện gì đó**? Cứ thoải mại chia sẻ nhé, thầy luôn lắng nghe! 😊`;
 
 export const MODE_DESCRIPTIONS = {
-[SupportMode.HINT]: {
-label: "Gợi ý nhẹ",
-color: "bg-green-100 text-green-800 border-green-200",
-icon: "💡",
-desc: "Thầy chỉ gợi ý phương pháp, em tự làm nhé."
-},
-[SupportMode.GUIDE]: {
-label: "Hướng dẫn chi tiết",
-color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-icon: "🟡",
-desc: "Thầy hướng dẫn từng bước, em làm theo."
-},
-[SupportMode.SOLVE]: {
-label: "Giải chi tiết",
-color: "bg-red-100 text-red-800 border-red-200",
-icon: "🔴",
-desc: "Thầy giải mẫu và giải thích cặn kẽ."
-}
+  [SupportMode.HINT]: {
+    label: "Gợi ý nhẹ",
+    color: "bg-green-100 text-green-800 border-green-200",
+    icon: "💡",
+    desc: "Thầy chỉ gợi ý phương pháp, em tự làm nhé."
+  },
+  [SupportMode.GUIDE]: {
+    label: "Hướng dẫn chi tiết",
+    color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    icon: "🟡",
+    desc: "Thầy hướng dẫn từng bước, em làm theo."
+  },
+  [SupportMode.SOLVE]: {
+    label: "Giải chi tiết",
+    color: "bg-red-100 text-red-800 border-red-200",
+    icon: "🔴",
+    desc: "Thầy giải mẫu và giải thích cặn kẽ."
+  }
 };
 
 export const SYSTEM_INSTRUCTION = `
