@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Message, Role, SupportMode } from './types';
-import { INITIAL_GREETING } from './constants';
+import { INITIAL_GREETING, MODE_DESCRIPTIONS } from './constants';
 import { sendMessageToGemini, generateDailyReport, initializeChat, getApiKey } from './services/geminiService';
 import ChatMessage from './components/ChatMessage';
 import ModeSelector from './components/ModeSelector';
@@ -187,7 +187,7 @@ function App() {
   };
 
   return (
-    <div className="flex h-full bg-slate-50 overflow-hidden relative">
+    <div className="flex h-full bg-background-light dark:bg-background-dark overflow-hidden relative font-display">
 
       <ApiKeyModal
         isOpen={isSettingsOpen}
@@ -230,54 +230,73 @@ function App() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col h-full relative w-full bg-white md:bg-slate-50">
+      <main className="flex-1 flex flex-col h-full relative w-full bg-background-light dark:bg-background-dark transition-colors duration-200">
 
-        {/* Header - Mobile */}
-        <header className="md:hidden flex items-center justify-between p-4 bg-white border-b border-slate-200 shadow-sm z-10 sticky top-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">TH</div>
+
+
+        {/* Header - Styled per snippet */}
+        <header className="bg-surface-light dark:bg-surface-dark shadow-sm px-4 py-3 flex items-center justify-between z-20 sticky top-0 transition-colors duration-200">
+          <div className="flex items-center space-x-3">
+            {/* Mobile Sidebar Toggle (using Back Icon style) */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-gray-500 dark:text-gray-400 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            >
+              <span className="material-icons-round">menu</span>
+            </button>
+            <div className="relative">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-sm shadow-glow">
+                TH
+              </div>
+              <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-surface-dark rounded-full"></div>
+            </div>
             <div>
-              <h1 className="font-bold text-slate-800 text-sm">Thầy Trần Hoài Thanh</h1>
-              <p className="text-xs text-emerald-600">Trợ lý Toán học</p>
+              <h1 className="text-base font-bold leading-tight text-gray-900 dark:text-white">Trần Hoài Thanh</h1>
+              <p className="text-xs text-primary font-medium">Đang hoạt động</p>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className={`p-2 rounded-lg transition-colors ${!hasApiKey ? 'text-red-500 bg-red-50 animate-pulse' : 'text-slate-500 hover:bg-slate-100'}`}
-              title="Cài đặt API Key"
+              className="text-gray-500 dark:text-gray-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              title="Cài đặt"
             >
-              <Settings size={20} />
+              <span className={`material-icons-round ${!hasApiKey ? 'text-red-500 animate-pulse' : ''}`}>settings</span>
             </button>
-            <button onClick={() => setIsSidebarOpen(true)} className="text-slate-600 p-2 hover:bg-slate-100 rounded-lg">
-              <Menu size={24} />
+            <button className="text-gray-500 dark:text-gray-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hidden md:block">
+              <span className="material-icons-round">more_vert</span>
             </button>
           </div>
         </header>
 
-        {/* Header - Desktop (Added for Settings button visibility on Desktop) */}
-        <header className="hidden md:flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200 z-10">
-          <div className="flex items-center gap-3">
-            {/* Can add breadcrumbs or title here if needed */}
+        {/* Teacher Info Card (Visible on Desktop/Tablet or collapsible) - Adapting snippet 'header extension' */}
+        <div className="px-4 pt-4 pb-2 hidden md:block">
+          <div className="bg-surface-light dark:bg-surface-dark rounded-2xl p-4 shadow-soft border border-gray-100 dark:border-gray-700 transition-colors duration-200 max-w-3xl mx-auto w-full">
+            <div className="flex items-start space-x-3">
+              <div className="flex-1">
+                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  <span className="material-icons-round text-sm mr-1 text-primary">school</span>
+                  <span>GV Toán - THPT Khúc Thừa Dụ</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold uppercase rounded-lg border border-green-100 dark:border-green-800">Toán 10-12</span>
+                  <span className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-bold uppercase rounded-lg border border-blue-100 dark:border-blue-800">Nhiệt tình</span>
+                </div>
+              </div>
+              <button
+                onClick={handleGenerateReport}
+                disabled={isGeneratingReport}
+                className="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors"
+                title="Tạo báo cáo"
+              >
+                <span className="material-icons-round text-lg">assessment</span>
+              </button>
+            </div>
           </div>
-          <div>
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className={`
-                        flex items-center gap-2 px-4 py-2 rounded-xl border transition-all shadow-sm
-                        ${!hasApiKey
-                  ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-600'
-                }
-                    `}
-            >
-              <Settings size={18} />
-              <span className="font-medium text-sm">
-                {hasApiKey ? "Cài đặt & API" : "Lấy API Key để sử dụng app"}
-              </span>
-            </button>
-          </div>
-        </header>
+        </div>
+
+
 
 
         {/* Chat Messages Container */}
@@ -292,18 +311,16 @@ function App() {
                 <ChatMessage key={msg.id} message={msg} />
               ))}
 
-              {isLoading && (
-                <div className="flex w-full mb-6 justify-start animate-fade-in">
-                  <div className="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
-                    <span className="text-sm text-slate-500 font-medium">Thầy đang giải...</span>
+              <div className="flex items-end space-x-2 animate-fade-in">
+                <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+                <div className="bg-bubble-teacher-light dark:bg-bubble-teacher-dark px-4 py-3 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700 w-16">
+                  <div className="flex space-x-1 justify-center">
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -311,69 +328,78 @@ function App() {
           {showScrollButton && (
             <button
               onClick={() => scrollToBottom('smooth')}
-              className="absolute bottom-24 right-4 md:right-8 bg-white border border-slate-200 text-emerald-600 p-2 rounded-full shadow-lg hover:bg-slate-50 transition-all z-20"
+              className="absolute bottom-24 right-4 md:right-8 bg-white border border-slate-200 text-teal-600 p-2 rounded-full shadow-lg hover:bg-slate-50 transition-all z-20"
             >
               <ArrowDown size={20} />
             </button>
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-3 md:p-6 bg-white border-t border-slate-200 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-          <div className="max-w-3xl mx-auto w-full">
+        {/* Footer Input Area */}
+        <footer className="bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pt-2 pb-6 px-4 z-30 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)] transition-colors duration-200">
+          {/* Mode Chips */}
+          <div className="flex space-x-2 overflow-x-auto hide-scrollbar mb-3 pb-1 justify-center md:justify-start max-w-3xl mx-auto w-full">
+            {Object.values(SupportMode).map((mode) => {
+              const isSelected = currentMode === mode;
+              // Map modes to specific colors/icons as per snippet style
+              let icon = "lightbulb";
+              if (mode === SupportMode.GUIDE) icon = "menu_book";
+              if (mode === SupportMode.SOLVE) icon = "check_circle_outline";
 
-            <ModeSelector
-              currentMode={currentMode}
-              onSelectMode={setCurrentMode}
-              disabled={isLoading}
+              return (
+                <button
+                  key={mode}
+                  onClick={() => setCurrentMode(mode)}
+                  disabled={isLoading}
+                  className={`
+                                flex items-center space-x-1 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-semibold active:scale-95 transition-transform border
+                                ${isSelected
+                      ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800 ring-1 ring-green-200'
+                      : 'bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100'
+                    }
+                            `}
+                >
+                  <span className="material-icons-round text-sm">{icon}</span>
+                  <span>{MODE_DESCRIPTIONS[mode].label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Input Bar */}
+          <div className="flex items-end space-x-2 max-w-3xl mx-auto w-full">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-2.5 text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
+            >
+              <span className="material-icons-round rotate-45">attach_file</span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
             />
 
-            {/* Image Preview Area */}
-            {selectedImage && (
-              <div className="mb-3 relative inline-block animate-in fade-in slide-in-from-bottom-2">
-                <div className="relative group">
-                  <img
-                    src={selectedImage}
-                    alt="Preview"
-                    className="h-24 w-auto rounded-xl border border-slate-200 shadow-md object-contain bg-slate-50"
-                  />
+            <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-[1.5rem] flex items-center px-4 py-1.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all border border-transparent focus-within:border-primary/50">
+              {/* Image Preview inside input */}
+              {selectedImage && (
+                <div className="mr-2 relative group">
+                  <img src={selectedImage} alt="preview" className="h-8 w-8 rounded object-cover border border-gray-300" />
                   <button
                     onClick={() => setSelectedImage(null)}
-                    className="absolute -top-2 -right-2 bg-white text-slate-500 border border-slate-200 rounded-full p-1 shadow-sm hover:text-red-500 hover:border-red-200 transition-colors"
-                    type="button"
+                    className="absolute -top-1 -right-1 bg-white text-gray-500 rounded-full w-4 h-4 flex items-center justify-center shadow-sm"
                   >
-                    <X size={14} />
+                    <span className="material-icons-round text-[10px]">close</span>
                   </button>
                 </div>
-              </div>
-            )}
+              )}
 
-            <form onSubmit={handleSendMessage} className="relative flex items-end gap-2">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className={`
-                      p-3 mb-0.5 rounded-xl transition-all border
-                      ${selectedImage
-                    ? 'text-emerald-600 bg-emerald-50 border-emerald-200 shadow-sm'
-                    : 'text-slate-500 bg-white border-slate-200 hover:bg-slate-50 hover:text-emerald-600'
-                  }
-                    `}
-                title="Gửi ảnh bài tập"
-                disabled={isLoading}
-              >
-                {selectedImage ? <ImageIcon size={20} /> : <Paperclip size={20} />}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-              </button>
-
-              <textarea
+              <input
                 ref={inputRef}
+                type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -382,56 +408,29 @@ function App() {
                     handleSendMessage();
                   }
                 }}
-                placeholder={selectedImage ? "Thêm ghi chú cho ảnh này..." : "Nhập câu hỏi hoặc bài toán..."}
-                className="flex-1 py-3 px-4 bg-slate-100 border-0 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400 resize-none min-h-[48px] max-h-[120px]"
-                style={{ height: '48px' }}
+                className="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 py-2"
+                placeholder={selectedImage ? "Thêm ghi chú..." : "Nhập câu hỏi hoặc bài toán..."}
                 disabled={isLoading}
               />
-
-              <button
-                type="submit"
-                disabled={(!input.trim() && !selectedImage) || isLoading}
-                className={`
-                    p-3 mb-0.5 rounded-xl flex items-center justify-center transition-all
-                    ${(!input.trim() && !selectedImage) || isLoading
-                    ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-emerald-200'
-                  }
-                  `}
-              >
-                <Send size={20} />
-              </button>
-            </form>
-            <div className="text-center mt-2 hidden md:block">
-              <p className="text-[10px] text-slate-400">
-                Trợ lý ảo có thể mắc lỗi. Hãy luôn kiểm tra lại kết quả.
-              </p>
             </div>
+
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={(!input.trim() && !selectedImage) || isLoading}
+              className={`
+                        p-3 rounded-full shadow-lg hover:shadow-glow active:scale-90 transition-all flex-shrink-0 flex items-center justify-center
+                         ${(!input.trim() && !selectedImage) || isLoading
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-primary text-white'
+                }
+                    `}
+            >
+              <span className="material-icons-round text-xl">send</span>
+            </button>
           </div>
-        </div>
 
-        {/* Footer Promotion */}
-        <footer className="bg-slate-800 text-slate-300 py-8 px-4 mt-auto border-t border-slate-700 no-print">
-          <div className="max-w-5xl mx-auto text-center">
-
-
-            <div className="space-y-2 text-sm md:text-base">
-              <p className="font-medium text-slate-400">Mọi thông tin vui lòng liên hệ:</p>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
-                <a
-                  href="https://www.facebook.com/tranhoaithanhvicko/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
-                >
-                  <span className="font-bold">Facebook:</span> tranhoaithanhvicko
-                </a>
-                <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                <span className="hover:text-emerald-400 transition-colors duration-200 cursor-default flex items-center gap-2">
-                  <span className="font-bold">Zalo:</span> 0348296773
-                </span>
-              </div>
-            </div>
+          <div className="text-[10px] text-center text-gray-400 dark:text-gray-600 mt-3 font-medium hidden md:block">
+            Trợ lý ảo có thể mắc lỗi. Hãy luôn kiểm tra lại kết quả.
           </div>
         </footer>
 

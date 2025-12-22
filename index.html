@@ -4,13 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Trợ lý Toán học - Thầy Trần Hoài Thanh</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#10B981", // Emerald 500
+                        secondary: "#34D399", // Emerald 400
+                        "background-light": "#E0F7FA", // Light Cyan
+                        "background-dark": "#111827", // Gray 900
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937", // Gray 800
+                        "bubble-teacher-light": "#FFFFFF",
+                        "bubble-teacher-dark": "#374151",
+                        "bubble-user-light": "#10B981",
+                        "bubble-user-dark": "#059669",
+                    },
+                    fontFamily: {
+                        display: ["Nunito", "sans-serif"],
+                        sans: ["Nunito", "sans-serif"], // Set as default sans
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        'xl': "1.5rem",
+                        '2xl': "2rem",
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 0 15px rgba(16, 185, 129, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
     <!-- KaTeX CSS for math rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <style>
       body {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Nunito', sans-serif;
         overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile affecting chat */
       }
       
