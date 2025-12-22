@@ -6,24 +6,10 @@ let chatSession: Chat | null = null;
 let genAI: GoogleGenAI | null = null;
 let currentSessionModelId: string | null = null;
 
-// Get API Key Priority: localStorage > env > null
+// Get API Key Priority: localStorage only (User inputted)
 export const getApiKey = (): string | null => {
   const localKey = localStorage.getItem('gemini_api_key');
   if (localKey && localKey.trim()) return localKey;
-
-  // Fallback to env vars
-  const envKeys = [
-    import.meta.env.VITE_GEMINI_API_KEY_1,
-    import.meta.env.VITE_GEMINI_API_KEY_2,
-    import.meta.env.VITE_GEMINI_API_KEY_3,
-    import.meta.env.VITE_GEMINI_API_KEY_4,
-    import.meta.env.VITE_API_KEY
-  ].filter(key => key && key.trim() !== '');
-
-  if (envKeys.length > 0) {
-    return envKeys[Math.floor(Math.random() * envKeys.length)];
-  }
-
   return null;
 };
 
