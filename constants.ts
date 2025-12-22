@@ -34,11 +34,11 @@ export const DEFAULT_MODEL = 'gemini-3-flash-preview';
 export const TEACHER_NAME = "Trần Hoài Thanh";
 export const TEACHER_SCHOOL = "THPT Khúc Thừa Dụ";
 
-export const INITIAL_GREETING = `Xin chào em! Thầy là Trần Hoài Thanh đây. 👋
-
-Thầy ở đây để đồng hành cùng em, không chỉ là những con số hay bài Toán khó, mà cả những câu chuyện buồn vui trong cuộc sống.
-
-Hôm nay em muốn thầy giúp về **bài tập Toán** hay là muốn **tâm sự chuyện gì đó**? Cứ thoải mại chia sẻ nhé, thầy luôn lắng nghe! 😊`;
+export const INITIAL_GREETING = `Xin chào em! Thầy là Trần Hoài Thanh đẹp zai đây. 👋 
+Thầy ở đây để đồng hành cùng em, không chỉ là những con số hay bài Toán khó, 
+mà cả những câu chuyện buồn vui trong cuộc sống. 
+Hôm nay em muốn thầy giúp về **bài tập Toán** hay là muốn **tâm sự chuyện gì đó**? 
+Cứ thoải mái chia sẻ nhé, thầy luôn lắng nghe! 😊`;
 
 export const MODE_DESCRIPTIONS = {
   [SupportMode.HINT]: {
