@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { Message, Role, SupportMode } from './types';
 import { INITIAL_GREETING, MODE_DESCRIPTIONS } from './constants';
 import { sendMessageToGemini, generateDailyReport, initializeChat, getApiKey } from './services/geminiService';
+import { exportChatToWord } from './services/exportService';
 import ChatMessage from './components/ChatMessage';
 import ModeSelector from './components/ModeSelector';
 import TeacherProfile from './components/TeacherProfile';
 import ApiKeyModal from './components/ApiKeyModal';
-import { Send, Paperclip, Menu, X, Image as ImageIcon, Trash2, ArrowDown, Settings } from 'lucide-react';
+import { Send, Paperclip, Menu, X, Image as ImageIcon, Trash2, ArrowDown, Settings, Download } from 'lucide-react';
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([
@@ -29,6 +30,12 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
 
+  // Dark Mode State
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved === 'true' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
   // Use a ref for the scroll container instead of a dummy div at the end
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +56,46 @@ function App() {
       }
     };
     checkKey();
+
+    // Load messages from localStorage
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        const restored = parsed.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
+        setMessages(restored);
+      } catch (e) {
+        console.error('Error loading messages:', e);
+      }
+    }
   }, []);
+
+  // Save messages to localStorage
+  useEffect(() => {
+    if (messages.length > 1) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  // Apply dark mode to document
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    localStorage.setItem('darkMode', String(isDarkMode));
+  }, [isDarkMode]);
+
+  // Clear chat handler
+  const handleClearChat = () => {
+    if (confirm('Bạn có chắc muốn xóa toàn bộ cuộc trò chuyện?')) {
+      const initialMessage: Message = {
+        id: 'init-1',
+        role: Role.MODEL,
+        text: INITIAL_GREETING,
+        timestamp: new Date(),
+      };
+      setMessages([initialMessage]);
+      localStorage.removeItem('chatMessages');
+    }
+  };
 
   // Handle scroll logic
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
@@ -264,8 +310,29 @@ function App() {
             >
               <span className={`material-icons-round ${!hasApiKey ? 'text-red-500 animate-pulse' : ''}`}>settings</span>
             </button>
-            <button className="text-gray-500 dark:text-gray-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors hidden md:block">
-              <span className="material-icons-round">more_vert</span>
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="text-gray-500 dark:text-gray-400 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              title={isDarkMode ? 'Chế độ sáng' : 'Chế độ tối'}
+            >
+              <span className="material-icons-round">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            {/* Clear Chat */}
+            <button
+              onClick={handleClearChat}
+              className="text-gray-500 dark:text-gray-400 p-2 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 rounded-full transition-colors"
+              title="Xóa cuộc trò chuyện"
+            >
+              <Trash2 size={20} />
+            </button>
+            {/* Export Word */}
+            <button
+              onClick={() => exportChatToWord(messages)}
+              className="text-gray-500 dark:text-gray-400 p-2 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-500 rounded-full transition-colors"
+              title="Xuất ra Word"
+            >
+              <Download size={20} />
             </button>
           </div>
         </header>
@@ -311,16 +378,19 @@ function App() {
                 <ChatMessage key={msg.id} message={msg} />
               ))}
 
-              <div className="flex items-end space-x-2 animate-fade-in">
-                <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
-                <div className="bg-bubble-teacher-light dark:bg-bubble-teacher-dark px-4 py-3 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700 w-16">
-                  <div className="flex space-x-1 justify-center">
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              {/* Typing Indicator - chỉ hiển thị khi đang loading */}
+              {isLoading && (
+                <div className="flex items-end space-x-2 animate-fade-in">
+                  <div className="h-6 w-6 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+                  <div className="bg-bubble-teacher-light dark:bg-bubble-teacher-dark px-4 py-3 rounded-2xl rounded-bl-none shadow-sm border border-gray-100 dark:border-gray-700 w-16">
+                    <div className="flex space-x-1 justify-center">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -435,6 +505,44 @@ function App() {
         </footer>
 
       </main>
+
+      {/* Footer Promotion */}
+      <footer className="bg-slate-800 text-slate-300 py-8 px-4 mt-auto border-t border-slate-700 no-print">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="mb-6 p-6 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 rounded-2xl border border-blue-500/20 backdrop-blur-sm">
+            <p className="font-bold text-lg md:text-xl text-blue-200 mb-3 leading-relaxed">
+              ĐĂNG KÝ KHOÁ HỌC THỰC CHIẾN VIẾT SKKN, TẠO APP DẠY HỌC, TẠO MÔ PHỎNG TRỰC QUAN <br className="hidden md:block" />
+              <span className="text-yellow-400">CHỈ VỚI 1 CÂU LỆNH</span>
+            </p>
+            <a
+              href="https://tinyurl.com/khoahocAI2025"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all transform hover:-translate-y-1 shadow-lg shadow-blue-900/50"
+            >
+              ĐĂNG KÝ NGAY
+            </a>
+          </div>
+
+          <div className="space-y-2 text-sm md:text-base">
+            <p className="font-medium text-slate-400">Mọi thông tin vui lòng liên hệ:</p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-6">
+              <a
+                href="https://www.facebook.com/tranhoaithanhvicko/"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+              >
+                <span className="font-bold">Facebook:</span> tranhoaithanhvicko
+              </a>
+              <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+              <span className="hover:text-emerald-400 transition-colors duration-200 cursor-default flex items-center gap-2">
+                <span className="font-bold">Zalo:</span> 0348296773
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
